@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /** File Path: ./centenarian-academy/app/api/webhooks/stripe/route.ts */
 
 import { stripe } from '@/lib/stripe';
