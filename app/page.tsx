@@ -21,7 +21,12 @@ export default function LandingPage() {
         <div className="flex items-center space-x-2">
           {/* Using a placeholder for the logo - you can swap the src with your actual local logo path */}
           <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center font-bold text-slate-900 text-xl">
-            C
+            <Image
+              src={'/images/FlyWitUSLogoVer3.png'}
+              alt={"World's Fastest Centenarian Logo"}
+              width={500}
+              height={500}
+            />
           </div>
           <span className="font-bold text-xl tracking-tight hidden sm:inline-block">
             CENTENARIAN ACADEMY
