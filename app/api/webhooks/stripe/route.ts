@@ -5,29 +5,41 @@ import { stripe } from '@/lib/stripe';
 import { getAdminClient } from '@/lib/supabase';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
 
 /**
  * Stripe Webhook Route
  * Handles both "Snapshot" (V1) and "Thin" (V2) payload styles.
- * Snapshot: Full object included in payload.
- * Thin: Requires fetching the object using the resource ID.
+ * Validates against multiple signing secrets (Snapshot and Thin).
  */
 export async function POST(req: Request) {
   const body = await req.text();
   const headerList = await headers();
   const signature = headerList.get('stripe-signature') as string;
 
-  let event;
+  // Define our available secrets
+  const secrets = [
+    process.env.STRIPE_WEBHOOK_SECRET_SNAPSHOT,
+    process.env.STRIPE_WEBHOOK_SECRET_THIN,
+  ].filter(Boolean) as string[];
 
-  try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
-  } catch (err: any) {
-    console.error(`Webhook signature verification failed: ${err.message}`);
-    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+  let event: Stripe.Event | null = null;
+  let lastError: Error | null = null;
+
+  // Attempt to verify the signature with each available secret
+  for (const secret of secrets) {
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, secret);
+      if (event) break; // If successful, stop checking
+    } catch (err: any) {
+      lastError = err;
+      continue; // Try the next secret
+    }
+  }
+
+  if (!event) {
+    console.error(`Webhook signature verification failed for all secrets. Last error: ${lastError?.message}`);
+    return new NextResponse(`Webhook Error: Unverifiable signature`, { status: 400 });
   }
 
   const supabase = getAdminClient();
@@ -39,17 +51,13 @@ export async function POST(req: Request) {
       let session;
 
       // Check if this is a "Snapshot" payload (V1) or "Thin" payload (V2)
-      // Snapshot payloads have the full object in event.data.object
       if (event.data && event.data.object) {
+        // V1: Full object is included
         session = event.data.object as any;
-      } 
-      // Thin payloads (V2) require fetching the resource manually
-      else if (event.id) {
+      } else {
+        // V2 (Thin): Fetch the full session to get metadata
         console.log(`Processing Thin Payload for event: ${event.id}`);
-        // For Thin events, we fetch the full session object to get our metadata
-        session = await stripe.checkout.sessions.retrieve(event.data.object.id, {
-            expand: ['line_items']
-        });
+        session = await stripe.checkout.sessions.retrieve((event.data as any).object.id);
       }
 
       const userId = session?.metadata?.userId;
@@ -60,7 +68,7 @@ export async function POST(req: Request) {
       }
 
       try {
-        // Log the payment - This triggers the DB function to unlock access
+        // Log the payment - This triggers the DB trigger to unlock access
         const { error } = await supabase
           .from('payments')
           .insert({
@@ -82,25 +90,25 @@ export async function POST(req: Request) {
     }
 
     case 'charge.refunded': {
-        let charge;
-        if (event.data && event.data.object) {
-            charge = event.data.object as any;
-        } else {
-            charge = await stripe.charges.retrieve(event.data.object.id);
-        }
+      let charge;
+      if (event.data && event.data.object) {
+        charge = event.data.object as any;
+      } else {
+        charge = await stripe.charges.retrieve((event.data as any).object.id);
+      }
 
-        // Handle Revoking Access
-        const { data: payment } = await supabase
-            .from('payments')
-            .select('user_id')
-            .eq('stripe_session_id', charge.payment_intent) // Simplified lookup
-            .single();
+      // Handle Revoking Access
+      const { data: payment } = await supabase
+        .from('payments')
+        .select('user_id')
+        .eq('stripe_session_id', charge.payment_intent || charge.id)
+        .maybeSingle();
 
-        if (payment) {
-            await supabase.from('profiles').update({ is_paid: false }).eq('id', payment.user_id);
-            console.log(`Access revoked for refunded user: ${payment.user_id}`);
-        }
-        break;
+      if (payment) {
+        await supabase.from('profiles').update({ is_paid: false }).eq('id', payment.user_id);
+        console.log(`Access revoked for refunded user: ${payment.user_id}`);
+      }
+      break;
     }
 
     default:
