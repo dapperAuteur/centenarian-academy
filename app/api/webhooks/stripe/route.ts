@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /** File Path: ./centenarian-academy/app/api/webhooks/stripe/route.ts */
 
 import { stripe } from '@/lib/stripe';
@@ -13,7 +12,10 @@ import { NextResponse } from 'next/server';
  */
 export async function POST(req: Request) {
   const body = await req.text();
-  const signature = (await headers()).get('stripe-signature') as string;
+  
+  // headers() is now an async function in recent Next.js versions
+  const headerList = await headers();
+  const signature = headerList.get('stripe-signature') as string;
 
   let event;
 
