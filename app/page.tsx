@@ -8,9 +8,10 @@ import React from 'react';
 import Image from 'next/image';
 import { Github, Timer, Shield, Zap } from 'lucide-react';
 import { Analytics } from "@vercel/analytics/next"
+import Link from 'next/link';
 
 export default function LandingPage() {
-  const repoUrl = "https://github.com/your-username/centenarian-academy"; // Replace with your actual repo URL
+  const repoUrl = "https://the.worldsfastestcentenarian.com/academy-repo"; // Replace with your actual repo URL
 
   return (
     <div className="min-h-screen bg-slate-900 text-white flex flex-col selection:bg-emerald-500/30">
@@ -26,7 +27,7 @@ export default function LandingPage() {
             CENTENARIAN ACADEMY
           </span>
         </div>
-        <a 
+        <Link 
           href={repoUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -34,7 +35,7 @@ export default function LandingPage() {
         >
           <Github size={18} />
           <span>View Repo</span>
-        </a>
+        </Link>
       </nav>
 
       {/* Hero Section */}
