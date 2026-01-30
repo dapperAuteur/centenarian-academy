@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/** File Path: ./centenarian-academy/app/actions/embeddings.ts */
+
 'use server'
 
 import { getAdminClient } from '@/lib/supabase';

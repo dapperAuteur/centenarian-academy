@@ -1,4 +1,3 @@
-/** File Path: ./centenarian-academy/app/actions/video.ts */
 'use server'
 
 import { getAdminClient } from '@/lib/supabase';

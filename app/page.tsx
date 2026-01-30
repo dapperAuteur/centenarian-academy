@@ -1,5 +1,5 @@
 /**
- * File Path: ./centenarian-academy/app/page.tsx
+ *
  * Description: The main landing page for the Centenarian Athlete Academy.
  * Features: Coming soon announcement, repo link, and logo integration.
  */
