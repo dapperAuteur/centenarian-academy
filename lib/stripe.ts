@@ -11,6 +11,6 @@ if (!process.env.STRIPE_SECRET_KEY) {
  * We use the latest API version.
  */
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16.clover', // Or the latest stable version
+  apiVersion: '2026-01-28.clover', // Or the latest stable version
   typescript: true,
 });
