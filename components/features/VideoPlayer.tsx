@@ -35,7 +35,7 @@ export default function VideoPlayer({ videoId, onEnded, onProgress }: VideoPlaye
           setError(result.message || "Failed to load curriculum video.");
         }
       } catch (err) {
-        setError("Connection to the academy lost. Please refresh.");
+        setError(`Connection to the academy lost. Please refresh. Error: ${err}`);
       } finally {
         setLoading(false);
       }
