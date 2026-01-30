@@ -44,13 +44,13 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <main className="flex-grow flex flex-col items-center justify-center px-6 py-12 text-center max-w-4xl mx-auto">
+      <main className="grow flex flex-col items-center justify-center px-6 py-12 text-center max-w-4xl mx-auto">
         <div className="inline-flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold mb-8 animate-pulse">
           <Zap size={14} />
           <span>NOW IN ACTIVE DEVELOPMENT</span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-linear-to-r from-white to-slate-400 bg-clip-text text-transparent">
           Built for the <br />
           <span className="text-emerald-500">Long Run.</span>
         </h1>
