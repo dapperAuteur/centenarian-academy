@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/** File Path: ./centenarian-academy/components/features/Crossroads.tsx */
 'use client'
 
 import React, { useState, useEffect } from 'react';

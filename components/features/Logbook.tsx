@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/** File Path: ./centenarian-academy/components/features/Logbook.tsx */
+
 'use client'
 
 import React, { useState, useEffect } from 'react';

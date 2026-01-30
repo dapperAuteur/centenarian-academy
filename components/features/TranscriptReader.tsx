@@ -1,4 +1,3 @@
-/** File Path: ./centenarian-academy/components/features/TranscriptReader.tsx */
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react';
