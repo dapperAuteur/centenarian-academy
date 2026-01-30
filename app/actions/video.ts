@@ -1,34 +1,61 @@
+/** File Path: ./centenarian-academy/app/actions/video.ts */
 'use server'
 
 import { getAdminClient } from '@/lib/supabase';
 import { getSignedVideoUrl } from '@/lib/cloudinary';
-import { cookies } from 'next/headers';
 
+/**
+ * Server Action to provide an authorized, time-limited video URL.
+ * * @param videoId - The UUID of the video from the Supabase 'videos' table.
+ * @returns {Promise<{ success: boolean; url?: string; message?: string }>}
+ */
 export async function getAuthorizedVideoUrl(videoId: string) {
   const supabase = getAdminClient();
   
-  // 1. Get current user
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  try {
+    // 1. Identify the user from the current session
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    // We don't throw immediately if !user, because 'Chapter Openers' are public.
+    const userId = user?.id;
 
-  // 2. Call the Database RPC function to check permissions
-  // This matches the hierarchical check (Global > Section > Chapter > Video)
-  const { data: hasAccess, error } = await supabase.rpc('check_resource_access', {
-    u_id: user.id,
-    v_id: videoId
-  });
+    // 2. Perform the hierarchical access check via the database RPC.
+    // This function handles: IsOpener? -> IsGlobalPaid? -> SectionAccess? -> ChapterAccess? -> VideoAccess?
+    const { data: hasAccess, error: accessError } = await supabase.rpc('check_resource_access', {
+      u_id: userId || null, // Pass null for unauthenticated users
+      v_id: videoId
+    });
 
-  if (error || !hasAccess) throw new Error("Access Denied: Payment Required");
+    if (accessError) {
+      console.error('Database Permission Error:', accessError);
+      return { success: false, message: "Error verifying access permissions." };
+    }
 
-  // 3. Fetch Cloudinary Public ID
-  const { data: video } = await supabase
-    .from('videos')
-    .select('cloudinary_public_id')
-    .eq('id', videoId)
-    .single();
+    if (!hasAccess) {
+      return { success: false, message: "Access Denied: This content requires a premium membership." };
+    }
 
-  if (!video) throw new Error("Video not found");
+    // 3. Fetch the Cloudinary Public ID for the authorized video
+    const { data: videoData, error: videoError } = await supabase
+      .from('videos')
+      .select('cloudinary_public_id')
+      .eq('id', videoId)
+      .single();
 
-  // 4. Return the time-limited signed URL
-  return await getSignedVideoUrl(video.cloudinary_public_id);
+    if (videoError || !videoData) {
+      return { success: false, message: "Content not found." };
+    }
+
+    // 4. Generate the signed, time-limited URL (expires in 1 hour)
+    const signedUrl = await getSignedVideoUrl(videoData.cloudinary_public_id);
+
+    return { 
+      success: true, 
+      url: signedUrl 
+    };
+
+  } catch (err) {
+    console.error('Secure Video Action Failure:', err);
+    return { success: false, message: "An unexpected error occurred." };
+  }
 }
