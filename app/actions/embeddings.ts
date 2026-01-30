@@ -7,7 +7,7 @@ import { generateEmbedding } from '@/lib/gemini';
 
 /**
  * Server Action to generate and store a transcript embedding for a specific video.
- * This powers the semantic "Choose Your Own Adventure" recommendation engine.
+ * This serves as the "Manual Trigger" for a single video.
  * * @param videoId - The UUID of the video to process.
  * @returns {Promise<{ success: boolean; message: string }>}
  */
@@ -38,7 +38,6 @@ export async function processVideoEmbedding(videoId: string) {
     });
 
     // 3. Generate the 1536-dimension embedding using Gemini
-    // We combine title and transcript for better contextual richness
     const contentToEmbed = `Title: ${video.title}\n\nContent: ${video.transcript_text}`;
     const embedding = await generateEmbedding(contentToEmbed);
 
@@ -48,9 +47,7 @@ export async function processVideoEmbedding(videoId: string) {
       .update({ embedding: embedding })
       .eq('id', videoId);
 
-    if (updateError) {
-      throw updateError;
-    }
+    if (updateError) throw updateError;
 
     // 5. Finalize telemetry
     await supabase.from('activity_logs').insert({
@@ -67,7 +64,6 @@ export async function processVideoEmbedding(videoId: string) {
   } catch (err: any) {
     console.error('Embedding Pipeline Failure:', err);
     
-    // Log the failure for Admin review
     await supabase.from('activity_logs').insert({
       event_type: 'AI_EMBEDDING_FAILURE',
       context: 'gemini_pipeline',
@@ -75,5 +71,46 @@ export async function processVideoEmbedding(videoId: string) {
     });
 
     return { success: false, message: `Failed to process embedding: ${err.message}` };
+  }
+}
+
+/**
+ * Server Action for Bulk Processing.
+ * Finds all published videos that are missing embeddings and processes them.
+ * * @returns {Promise<{ success: boolean; processedCount: number; message: string }>}
+ */
+export async function bulkProcessEmbeddings() {
+  const supabase = getAdminClient();
+  
+  try {
+    // 1. Find videos missing embeddings
+    const { data: videos, error } = await supabase
+      .from('videos')
+      .select('id')
+      .is('embedding', null)
+      .eq('is_published', true);
+
+    if (error) throw error;
+    if (!videos || videos.length === 0) {
+      return { success: true, processedCount: 0, message: "All videos are already indexed." };
+    }
+
+    let successCount = 0;
+    
+    // 2. Process in sequence (to avoid rate limits and manage logs clearly)
+    for (const video of videos) {
+      const result = await processVideoEmbedding(video.id);
+      if (result.success) successCount++;
+    }
+
+    return {
+      success: true,
+      processedCount: successCount,
+      message: `Successfully indexed ${successCount} of ${videos.length} videos.`
+    };
+
+  } catch (err: any) {
+    console.error('Bulk Processing Failure:', err);
+    return { success: false, processedCount: 0, message: `Bulk error: ${err.message}` };
   }
 }
