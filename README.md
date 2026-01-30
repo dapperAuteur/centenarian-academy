@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# **Centenarian Athlete Academy**
 
-## Getting Started
+The Centenarian Athlete Academy (CAA) is a high-performance Learning Management System designed for fitness professionals pursuing the NASM CPT, CES, and CNC certifications.
 
-First, run the development server:
+## **🌟 The Vision**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Built on the "Story-Led Flywheel" strategy, this app transforms a standard curriculum into a **Choose Your Own Adventure** journey. It mirrors the long, non-linear path to becoming a centenarian athlete.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## **🚀 Key Features**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* **Adventure Engine:** Non-linear video navigation with AI-suggested related paths.  
+* **AI Recommendation:** Powered by **Gemini API** and **Supabase pgvector**, calculating semantic similarity between video transcripts.  
+* **Secure Gating:** Hierarchical permissions (Global, Section, Chapter, Video) with Cloudinary Signed URLs.  
+* **Integrated Payments:** $100 one-time purchase via Stripe.  
+* **Study Locker:** Gated downloads for transcripts, flashcards, and study guides.  
+* **The Logbook:** Visual trail mapping of a student's personal journey.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## **🛠 Tech Stack**
 
-## Learn More
+* **Next.js 14** (App Router)  
+* **Supabase** (Auth, Database, pgvector, Edge Functions)  
+* **Cloudinary** (Video CDN & AI Clipping)  
+* **Gemini API** (Transcript Embeddings)  
+* **Stripe** (Payments)  
+* **Tailwind CSS & Framer Motion** (UI/UX)
 
-To learn more about Next.js, take a look at the following resources:
+## **📦 Setup Instructions**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Clone & Install:**  
+   npm install
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Environment Variables:**  
+   Copy .env.example to .env.local and fill in your Supabase, Cloudinary, Stripe, and Gemini credentials.  
+3. **Database Setup:**  
+   Run the setup\_schema.sql in your Supabase SQL Editor.  
+4. **Run Development:**  
+   npm run dev
 
-## Deploy on Vercel
+## **📊 Telemetry & Insights**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This app implements **Intent-Aware Logging**. We don't just track *what* students do, but *why* they do it—helping us refine the curriculum and the adventure paths over time.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*Built for the Long Run.*# centenarian-academy
