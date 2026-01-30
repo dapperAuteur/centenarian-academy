@@ -7,12 +7,14 @@
 import React from 'react';
 import Image from 'next/image';
 import { Github, Timer, Shield, Zap } from 'lucide-react';
+import { Analytics } from "@vercel/analytics/next"
 
 export default function LandingPage() {
   const repoUrl = "https://github.com/your-username/centenarian-academy"; // Replace with your actual repo URL
 
   return (
     <div className="min-h-screen bg-slate-900 text-white flex flex-col selection:bg-emerald-500/30">
+      <Analytics />
       {/* Navigation */}
       <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
         <div className="flex items-center space-x-2">
