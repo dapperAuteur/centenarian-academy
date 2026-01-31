@@ -1,4 +1,3 @@
-/** File Path: ./centenarian-academy/app/actions/stripe.ts */
 'use server'
 
 import { stripe } from '@/lib/stripe';

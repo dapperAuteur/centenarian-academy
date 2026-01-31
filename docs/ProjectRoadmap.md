@@ -1,5 +1,3 @@
-/\*\* File Path: ./centenarian-academy/roadmap.md \*/
-
 # **Centenarian Athlete Academy: Technical Roadmap**
 
 ## **1\. Feature Breakdown**

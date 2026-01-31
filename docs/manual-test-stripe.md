@@ -1,5 +1,3 @@
-**/\*\* File Path: ./centenarian-academy/docs/manual-test-stripe.md \*/**
-
 # **Manual Testing Guide: Stripe & Content Gating**
 
 **Before moving on to the Gemini AI integration, follow these steps to ensure the payment and security logic is working correctly.**

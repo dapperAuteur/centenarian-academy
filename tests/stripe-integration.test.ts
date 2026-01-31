@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/** File Path: ./centenarian-academy/tests/stripe-integration.test.ts */
 
 import { stripe } from '../lib/stripe';
 
